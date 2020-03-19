@@ -13,7 +13,7 @@ directory in which you have placed your Dockerfile,
 containing a single line:
 
 ```dockerfile
-FROM smok-serwis/cassandra-dev-docker
+FROM smokserwis/cassandra-dev-docker
 ```
 
 This schema will be loaded and the resulting image 
