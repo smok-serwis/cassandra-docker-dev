@@ -2,6 +2,9 @@
 
 set -e
 
+sed -i '/rpc_address/d' /etc/cassandra/cassandra.yaml
+echo "rpc_address: $(hostname -i)" >> /etc/cassandra/cassandra.yaml
+
 # first arg is `-f` or `--some-option`
 if [ "${1:0:1}" = '-' ]; then
 	set -- cassandra -f "$@"

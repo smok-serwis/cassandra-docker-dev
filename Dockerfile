@@ -1,7 +1,5 @@
 FROM debian:buster
-# Required context: tests/dockerfiles/cassandra/
 
-# solves warning: "jemalloc shared library could not be preloaded to speed up memory allocations"
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates gnupg wget libjemalloc2 && apt-get clean
 
 # https://wiki.apache.org/cassandra/DebianPackaging#Adding_Repository_Keys
@@ -30,9 +28,7 @@ RUN mkdir -p /var/lib/cassandra "$CASSANDRA_CONFIG" \
 
 ENV MAX_HEAP_SIZE=300M
 ENV HEAP_NEWSIZE=80M
-ENV CASSANDRA_AUTHENTICATOR=PasswordAuthenticator
 
-ADD cassandra.cql /tmp/cassandra.cql
 RUN sed -i '/UseParNewGC/d' /etc/cassandra/jvm.options  && \
     sed -i '/ThreadPriorityPolicy/d' /etc/cassandra/cassandra-env.sh && \
     sed -i '/PrintGCDateStamps/d' /etc/cassandra/jvm.options && \
@@ -48,7 +44,6 @@ ADD load_schema.sh /tmp/load_schema.sh
 
 ONBUILD ADD schema.cql /tmp/schema.cql
 ONBUILD RUN bash /tmp/load_schema.sh
-ONBUILD RUN sed 's/listen_address/listen_address: eth0/' /etc/cassandra/cassandra.yaml
 
 EXPOSE 9042
 CMD ["cassandra", "-f"]
