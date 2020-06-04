@@ -38,7 +38,8 @@ RUN sed -i '/UseParNewGC/d' /etc/cassandra/jvm.options  && \
     sed -i '/PrintPromotionFailure/d' /etc/cassandra/jvm.options && \
     sed -i '/UseGCLogFileRotation/d' /etc/cassandra/jvm.options && \
     sed -i '/NumberOfGCLogFiles/d' /etc/cassandra/jvm.options && \
-    sed -i '/GCLogFileSize/d' /etc/cassandra/jvm.options
+    sed -i '/GCLogFileSize/d' /etc/cassandra/jvm.options && \
+    sed -i "s/batch_size_fail_threshold_in_kb.*/batch_size_fail_threshold_in_kb: 2048/g" /etc/cassandra/cassandra.yaml
 
 ADD load_schema.sh /tmp/load_schema.sh
 
