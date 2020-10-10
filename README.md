@@ -30,7 +30,8 @@ ADD schema_extra /tmp/schema_extra.cql
 ```
 
 The file has to be named /tmp/schema*.cql, since this is what `cassandra-docker-dev` will try to
-load. You need to add them manually, though, they won't be added automatically like `schema.cql`. 
+load. All files having the name of `schema*.cql` will be added from the current directory 
+automatically. 
 Of course you still need to place `schema.cql` so place there your main schema, with the schemas
 for tools named like `schema_jaeger.cql`.
 

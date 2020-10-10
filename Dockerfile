@@ -6,7 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 RUN wget -q -O - https://www.apache.org/dist/cassandra/KEYS | apt-key add -
 RUN echo "deb http://www.apache.org/dist/cassandra/debian 30x main\ndeb-src http://www.apache.org/dist/cassandra/debian 30x main" >> /etc/apt/sources.list.d/cassandra.list
 
-ENV CASSANDRA_VERSION 3.0.20
+ENV CASSANDRA_VERSION 3.0.22
 
 RUN apt-get update \
 	&& apt-get install -y \
@@ -43,7 +43,7 @@ RUN sed -i '/UseParNewGC/d' /etc/cassandra/jvm.options  && \
 
 ADD load_schema.sh /tmp/load_schema.sh
 
-ONBUILD ADD schema.cql /tmp/schema.cql
+ONBUILD ADD schema*.cql /tmp/
 ONBUILD RUN bash /tmp/load_schema.sh
 
 EXPOSE 9042
