@@ -13,7 +13,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-cqlsh -f /tmp/schema.cql
+# Add additional files
+for SCHEMA_FILE in /tmp/schema*.cql; do
+  cqlsh -f "${SCHEMA_FILE}"
+done
 
 # persist rows
 nodetool drain
