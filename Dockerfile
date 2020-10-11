@@ -47,6 +47,6 @@ ONBUILD ADD schema*.cql /tmp/
 ONBUILD RUN bash /tmp/load_schema.sh
 
 EXPOSE 9042
-CMD ["cassandra", "-f"]
+CMD ["cassandra", "-f", "-R"]
 
 STOPSIGNAL SIGKILL
