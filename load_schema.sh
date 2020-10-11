@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cassandra -f &
+cassandra -f -R &
 
 NEXT_WAIT_TIME=5
 until (echo 'SELECT * FROM system.peers; ' | cqlsh ) || [ $NEXT_WAIT_TIME -eq 20 ]; do

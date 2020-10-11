@@ -31,6 +31,7 @@ RUN mkdir -p /var/lib/cassandra "$CASSANDRA_CONFIG" \
 
 RUN sed -i '/UseParNewGC/d' /etc/cassandra/jvm.options  && \
     sed -i '/ThreadPriorityPolicy/d' /etc/cassandra/cassandra-env.sh && \
+    sed -i '/ThreadPriorityPolicy/d' /etc/cassandra/jvm.options && \
     sed -i '/PrintGCDateStamps/d' /etc/cassandra/jvm.options && \
     sed -i '/PrintHeapAtGC/d' /etc/cassandra/jvm.options && \
     sed -i '/PrintTenuringDistribution/d' /etc/cassandra/jvm.options && \
@@ -47,6 +48,6 @@ ONBUILD ADD schema*.cql /tmp/
 ONBUILD RUN bash /tmp/load_schema.sh
 
 EXPOSE 9042
-CMD ["cassandra", "-f", "-R"]
+CMD ["cassandra", "-R", "-f"]
 
 STOPSIGNAL SIGKILL
