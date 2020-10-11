@@ -1,12 +1,16 @@
 FROM debian:buster
 
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates gnupg wget libjemalloc2 && apt-get clean
-
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends ca-certificates gnupg wget libjemalloc2 && \
+    apt-get clean && \
+    wget -q -O - https://www.apache.org/dist/cassandra/KEYS | apt-key add - && \
+    echo "deb http://www.apache.org/dist/cassandra/debian 311x main" >> /etc/apt/sources.list.d/cassandra.list
 # https://wiki.apache.org/cassandra/DebianPackaging#Adding_Repository_Keys
-RUN wget -q -O - https://www.apache.org/dist/cassandra/KEYS | apt-key add -
-RUN echo "deb http://www.apache.org/dist/cassandra/debian 311x main" >> /etc/apt/sources.list.d/cassandra.list
 
-ENV CASSANDRA_VERSION 3.11.8
+ENV MAX_HEAP_SIZE=300M \
+    HEAP_NEWSIZE=80M \
+    CASSANDRA_CONFIG=/etc/cassandra \
+    CASSANDRA_VERSION=3.11.8
 
 RUN apt-get update \
 	&& apt-get install -y \
@@ -16,7 +20,6 @@ RUN apt-get update \
 # https://issues.apache.org/jira/browse/CASSANDRA-11661
 RUN sed -ri 's/^(JVM_PATCH_VERSION)=.*/\1=25/' /etc/cassandra/cassandra-env.sh
 
-ENV CASSANDRA_CONFIG /etc/cassandra
 ADD docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod ugo+x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
@@ -25,9 +28,6 @@ RUN mkdir -p /var/lib/cassandra "$CASSANDRA_CONFIG" \
 	&& chown -R cassandra:cassandra /var/lib/cassandra "$CASSANDRA_CONFIG" \
 	&& chmod 777 /var/lib/cassandra "$CASSANDRA_CONFIG" \
 	&& chmod -R 777 /tmp
-
-ENV MAX_HEAP_SIZE=300M
-ENV HEAP_NEWSIZE=80M
 
 RUN sed -i '/UseParNewGC/d' /etc/cassandra/jvm.options  && \
     sed -i '/ThreadPriorityPolicy/d' /etc/cassandra/cassandra-env.sh && \
