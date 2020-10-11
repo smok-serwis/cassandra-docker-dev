@@ -4,9 +4,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 
 # https://wiki.apache.org/cassandra/DebianPackaging#Adding_Repository_Keys
 RUN wget -q -O - https://www.apache.org/dist/cassandra/KEYS | apt-key add -
-RUN echo "deb http://www.apache.org/dist/cassandra/debian 30x main\ndeb-src http://www.apache.org/dist/cassandra/debian 30x main" >> /etc/apt/sources.list.d/cassandra.list
+RUN echo "deb http://www.apache.org/dist/cassandra/debian 311x main" >> /etc/apt/sources.list.d/cassandra.list
 
-ENV CASSANDRA_VERSION 3.0.22
+ENV CASSANDRA_VERSION 3.11.8
 
 RUN apt-get update \
 	&& apt-get install -y \
