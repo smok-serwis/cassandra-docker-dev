@@ -15,7 +15,7 @@ fi
 
 # Add additional files
 for SCHEMA_FILE in /tmp/schema*.cql; do
-  cqlsh -f "${SCHEMA_FILE}"
+  cqlsh --request-timeout=30 -f "${SCHEMA_FILE}"
 done
 
 # persist rows

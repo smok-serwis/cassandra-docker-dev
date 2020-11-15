@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-
+shift
 sed -i '/rpc_address/d' /etc/cassandra/cassandra.yaml
 echo "" >> /etc/cassandra/cassandra.yaml
 echo "rpc_address: $(hostname -i)" >> /etc/cassandra/cassandra.yaml
@@ -13,7 +13,7 @@ fi
 
 # allow the container to be started with `--user`
 if [ "$1" = 'cassandra' -a "$(id -u)" = '0' ]; then
-	exec cassandra "$BASH_SOURCE" "$@"
+	exec "$@"
 fi
 
 if [ "$1" = 'cassandra' ]; then
@@ -64,5 +64,4 @@ if [ "$1" = 'cassandra' ]; then
 		fi
 	done
 fi
-
 exec "$@"
