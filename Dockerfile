@@ -10,7 +10,7 @@ RUN apt-get update && \
 ENV MAX_HEAP_SIZE=300M \
     HEAP_NEWSIZE=80M \
     CASSANDRA_CONFIG=/etc/cassandra \
-    CASSANDRA_VERSION=3.11.9
+    CASSANDRA_VERSION=3.11.13
 
 RUN apt-get update \
 	&& apt-get install -y \
