@@ -1,24 +1,29 @@
-FROM debian:buster
+FROM debian:bullseye
+
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV APT_KEY_DONT_WARN_ON_DANGEROUS_USAGE=1
 
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends ca-certificates gnupg wget libjemalloc2 && \
-    apt-get clean && \
-    wget -q -O - https://www.apache.org/dist/cassandra/KEYS | apt-key add - && \
-    echo "deb http://www.apache.org/dist/cassandra/debian 311x main" >> /etc/apt/sources.list.d/cassandra.list
-# https://wiki.apache.org/cassandra/DebianPackaging#Adding_Repository_Keys
+    apt-get install -y --no-install-recommends openjdk-11-jre-headless gnupg2 python3 libjemalloc2 && \
+    apt-get clean
 
-ENV MAX_HEAP_SIZE=300M \
-    HEAP_NEWSIZE=80M \
-    CASSANDRA_CONFIG=/etc/cassandra \
-    CASSANDRA_VERSION=3.11.13
+RUN mkdir -p /etc/ssl/certs/java/ && \
+    apt install --reinstall -o Dpkg::Options::="--force-confask,confnew,confmiss" --reinstall ca-certificates-java ssl-cert openssl ca-certificates && \
+    apt-get clean
 
-RUN apt-get update \
-	&& apt-get install -y \
-		cassandra="$CASSANDRA_VERSION" \
-		cassandra-tools="$CASSANDRA_VERSION" \
-	&& rm -rf /var/lib/apt/lists/*
-# https://issues.apache.org/jira/browse/CASSANDRA-11661
-RUN sed -ri 's/^(JVM_PATCH_VERSION)=.*/\1=25/' /etc/cassandra/cassandra-env.sh
+
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+
+LABEL apache.cassandra.version="4.1.7"
+
+# Cassandra apt-get
+ADD cassandra.sources.list /etc/apt/sources.list.d/cassandra.sources.list
+ADD https://www.apache.org/dist/cassandra/KEYS /tmp/repo_key
+RUN  apt-key add /tmp/repo_key && \
+     apt-get update --fix-missing && \
+     apt-get install -y --no-install-recommends cassandra cassandra-tools && \
+     apt-get clean
 
 ADD docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod ugo+x /docker-entrypoint.sh
@@ -29,23 +34,12 @@ RUN mkdir -p /var/lib/cassandra "$CASSANDRA_CONFIG" \
 	&& chmod 777 /var/lib/cassandra "$CASSANDRA_CONFIG" \
 	&& chmod -R 777 /tmp
 
-RUN sed -i '/UseParNewGC/d' /etc/cassandra/jvm.options  && \
-    sed -i '/ThreadPriorityPolicy/d' /etc/cassandra/cassandra-env.sh && \
-    sed -i '/ThreadPriorityPolicy/d' /etc/cassandra/jvm.options && \
-    sed -i '/PrintGCDateStamps/d' /etc/cassandra/jvm.options && \
-    sed -i '/PrintHeapAtGC/d' /etc/cassandra/jvm.options && \
-    sed -i '/PrintTenuringDistribution/d' /etc/cassandra/jvm.options && \
-    sed -i '/PrintGCApplicationStoppedTime/d' /etc/cassandra/jvm.options && \
-    sed -i '/PrintPromotionFailure/d' /etc/cassandra/jvm.options && \
-    sed -i '/UseGCLogFileRotation/d' /etc/cassandra/jvm.options && \
-    sed -i '/NumberOfGCLogFiles/d' /etc/cassandra/jvm.options && \
-    sed -i '/GCLogFileSize/d' /etc/cassandra/jvm.options && \
-    sed -i "s/batch_size_fail_threshold_in_kb.*/batch_size_fail_threshold_in_kb: 2048/g" /etc/cassandra/cassandra.yaml
-
 ADD load_schema.sh /tmp/load_schema.sh
 
 ONBUILD ADD schema*.cql /tmp/
 ONBUILD RUN bash /tmp/load_schema.sh
+
+ENV NEW_HEAP_SIZE=300M
 
 EXPOSE 9042
 CMD ["cassandra", "-R", "-f"]
