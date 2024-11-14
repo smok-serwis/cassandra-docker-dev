@@ -29,19 +29,21 @@ ADD docker-entrypoint.sh /docker-entrypoint.sh
 RUN chmod ugo+x /docker-entrypoint.sh
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-RUN mkdir -p /var/lib/cassandra "$CASSANDRA_CONFIG" \
-	&& chown -R cassandra:cassandra /var/lib/cassandra "$CASSANDRA_CONFIG" \
-	&& chmod 777 /var/lib/cassandra "$CASSANDRA_CONFIG" \
+RUN mkdir -p /var/lib/cassandra \
+	&& chown -R cassandra:cassandra /var/lib/cassandra  \
+	&& chmod 777 /var/lib/cassandra \
 	&& chmod -R 777 /tmp
 
-ADD load_schema.sh /tmp/load_schema.sh
 
-ONBUILD ADD schema*.cql /tmp/
-ONBUILD RUN bash /tmp/load_schema.sh
+ADD load_schema.sh /tmp/load_schema.sh
 
 ENV NEW_HEAP_SIZE=300M
 
 EXPOSE 9042
-CMD ["cassandra", "-R", "-f"]
 
 STOPSIGNAL SIGKILL
+
+ONBUILD ADD schema*.cql /tmp/
+ONBUILD RUN bash /tmp/load_schema.sh
+
+CMD ["cassandra", "-R", "-f"]

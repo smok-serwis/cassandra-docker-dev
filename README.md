@@ -17,7 +17,7 @@ FROM smokserwis/cassandra-dev-docker
 ```
 
 This schema will be loaded and the resulting image 
-will be of a Cassandra 3.11.13 with preloaded schema.
+will be of a Cassandra 4.1.7 with preloaded schema.
 
 Thank you!
 

@@ -11,6 +11,10 @@ if [ "${1:0:1}" = '-' ]; then
 	set -- cassandra -f "$@"
 fi
 
+if [ "$1" = "bash" ]; then
+  exec bash
+fi
+
 # allow the container to be started with `--user`
 if [ "$1" = 'cassandra' -a "$(id -u)" = '0' ]; then
 	exec "$@"
