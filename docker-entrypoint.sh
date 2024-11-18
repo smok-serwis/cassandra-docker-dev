@@ -1,18 +1,23 @@
 #!/bin/bash
 
-set -e
-shift
-sed -i '/rpc_address/d' /etc/cassandra/cassandra.yaml
-echo "" >> /etc/cassandra/cassandra.yaml
-echo "rpc_address: $(hostname -i)" >> /etc/cassandra/cassandra.yaml
-echo "enable_materialized_views: true" >> /etc/cassandra/cassandra.yaml
-# first arg is `-f` or `--some-option`
-if [ "${1:0:1}" = '-' ]; then
-	set -- cassandra -f "$@"
-fi
 
 if [ "$1" = "bash" ]; then
   exec bash
+fi
+
+
+mv -f /tmp/cassandra.yaml /etc/cassandra/cassandra.yaml
+
+set -e
+shift
+sed -i '/rpc_address/d' /etc/cassandra/cassandra.yaml
+sed -i '/enable_materialized_views/d' /etc/cassandra/cassandra.yaml
+echo "" >> /etc/cassandra/cassandra.yaml
+echo "rpc_address: $(hostname -i)" >> /etc/cassandra/cassandra.yaml
+echo "materialized_views_enabled: true" >> /etc/cassandra/cassandra.yaml
+# first arg is `-f` or `--some-option`
+if [ "${1:0:1}" = '-' ]; then
+	set -- cassandra -f "$@"
 fi
 
 # allow the container to be started with `--user`
